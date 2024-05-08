@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 import argparse
-def convert_to_rgb(video_path):
+def convert_to_rgb(video_paths):
+    video_path,dest_path = video_paths
     # Read the video
     cap = cv2.VideoCapture(video_path)
 
@@ -13,7 +14,7 @@ def convert_to_rgb(video_path):
     print('total_frames:',total_frames)
     # Create a VideoWriter object to save the new RGB video
     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    out = cv2.VideoWriter('output_rgb_video.mp4', fourcc, fps, (width, height))
+    out = cv2.VideoWriter(dest_path, fourcc, fps, (width, height))
 
     # Read and process each frame
     frame_count = 0

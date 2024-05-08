@@ -13,7 +13,7 @@
 #SBATCH -q gpu-8
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1gb
-#SBATCH --output=/home/ganzorig.batnasan/tiny_codes/multinodes_slurm/%x-%j.out
+#SBATCH --output=/home/ganzorig.batnasan/tiny_codes/slurm/%x-%j.out
 
 #hostname
 
@@ -34,5 +34,5 @@ source /apps/local/conda_init.sh
 conda activate vit
 
 ### the command to run
-srun python main.py --net resnet18 \
---lr 1e-3 --epochs 50 --other_args
+srun python main.py --net resnet18 --lr 1e-3 --epochs 50
+python keep_running.py
