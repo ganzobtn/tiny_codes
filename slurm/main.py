@@ -5,6 +5,7 @@ import torch
 import numpy as np 
 import random
 import torch.distributed as dist
+from torchvision.models import resnet50, ResNet50_Weights
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -53,7 +54,7 @@ def main(args):
         builtins.print = print_pass
        
     ### model ###
-    model = MyModel()
+    model = resnet50(pretrained=False)
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
         # should always set the single device scope, otherwise,
@@ -78,20 +79,24 @@ def main(args):
         pass
     
     ### data ###
-    train_dataset = MyDataset(mode='train')
-    train_sampler = data.distributed.DistributedSampler(dataset, shuffle=True)
+
+    train_dataset= torchvision.datasets.CIFAR10(root='./data', train=True,
+                                        download=True, transform=transform)
+
+
+    train_sampler = data.distributed.DistributedSampler(train_dataset, shuffle=True)
     train_loader = torch.utils.data.DataLoader(
             train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
             num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True)
-    
-    val_dataset = MyDataset(mode='val')
-    val_sampler = None
-    val_loader = torch.utils.data.DataLoader(
-            val_dataset, batch_size=args.batch_size, shuffle=(val_sampler is None),
-            num_workers=args.workers, pin_memory=True, sampler=val_sampler, drop_last=True)
-    
+
+    val_dataset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                        download=True, transform=transform)
+    vasl_sampler = data.distributed.DistributedSampler(val_dataset, shuffle=False)
+    val_loader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+                                            shuffle=False, num_workers=2)
+
     torch.backends.cudnn.benchmark = True
-    
+
     ### main loop ###
     for epoch in range(args.start_epoch, args.epochs):
         np.random.seed(epoch)
